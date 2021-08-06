@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Optional
 
-from scrapers.models.common import AggregatorSource
+from scrapers.models.common import MangaSource
 
 
 @dataclass()
@@ -11,7 +11,7 @@ class Chapter:
     num: int  # This is the ordered place in the chapter list
     rel_link: str  # Relative URI to chapter view with page images
     updated_at: Optional[date]
-    source: AggregatorSource
+    source: MangaSource
     additional_props: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -40,7 +40,7 @@ class Page:
 
 @dataclass
 class SearchResult:
-    source: AggregatorSource
+    source: MangaSource
     title: str
     posterImage: str
     lastestChapter: str  # chapter number is weird so just keep that weird format as a string

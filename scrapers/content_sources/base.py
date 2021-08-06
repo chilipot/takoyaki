@@ -4,11 +4,11 @@ from datetime import date
 from typing import Generator, Optional, List
 
 from scrapers.models.aggregator import SearchResult, Chapter
-from scrapers.models.common import AggregatorSource
+from scrapers.models.common import MangaSource
 
 
 class ScanlatorSource(ABC):
-    SOURCE = AggregatorSource
+    SOURCE = MangaSource
 
     @abstractmethod
     def chapter_image_links(self, chapter: Chapter) -> List[Chapter]:

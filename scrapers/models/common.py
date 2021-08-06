@@ -1,7 +1,7 @@
 import enum
 
 
-class AggregatorSource(enum.Enum):
+class MangaSource(enum.Enum):
     BATOTO = "Bato.to"
     MANGADEX = "Mangadex"
     MANGAHUB = "Mangahub"
