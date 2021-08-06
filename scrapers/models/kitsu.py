@@ -1,53 +1,9 @@
-from dataclasses import dataclass, field
-from datetime import date
-from typing import Optional, List, Dict, ClassVar, Tuple
+from dataclasses import dataclass
+from typing import ClassVar, Tuple
 
 from jsonapi_client.resourceobject import ResourceObject
 
-from manga_scraper.constants import Source
-
-"""
-Aggregator dataclasses
-"""
-
-
-@dataclass()
-class Page:
-    link: str = field(compare=False, hash=True)
-    num: int
-
-    def to_dict(self) -> dict:
-        return {
-            'link': self.link,
-            'num': self.num
-        }
-
-
-@dataclass()
-class Chapter:
-    name: str
-    num: int  # This is the ordered place in the chapter list
-    rel_link: str  # Relative URI to chapter view with page images
-    updated_at: Optional[date]
-    source: Source
-    additional_props: Dict = field(default_factory=dict)
-    pages: Optional[List[Page]] = field(default_factory=dict)
-
-    def to_dict(self) -> dict:
-        return {
-            'name': self.name,
-            'num': self.num,
-            'reLink': self.rel_link,
-            'updatedAt': self.updated_at.isoformat(),
-            'source': self.source.name,
-            'additionalProps': self.additional_props,
-            'pages': [page.to_dict() for page in self.pages]
-        }
-
-
-"""
-METADATA dataclasses
-"""
+from scrapers.models.common import MangaType, MangaStatus
 
 
 @dataclass()
@@ -81,7 +37,7 @@ class Categories:
     slug: str
     image: str
 
-    field_names: ClassVar[Tuple[str]] = 'title', 'description', 'slug', 'image'
+    field_names: ClassVar[tuple[str]] = 'title', 'description', 'slug', 'image'
 
     def to_dict(self) -> dict:
         return {
@@ -110,16 +66,16 @@ class Manga:
     slug: str
     synopsis: str
     canonical_title: str
-    titles: Dict[str, str]
-    titles_array: List[str]
-    abbreviated_titles: List[str]
+    titles: dict[str, str]
+    titles_array: list[str]
+    abbreviated_titles: list[str]
     average_rating: str
-    manga_type: str
-    subtype: str
-    status: str
-    poster_image: Dict[str, str]
-    categories: List[Categories]
-    genres: List[Genres]
+    manga_type: MangaType
+    subtype: MangaType
+    status: MangaStatus
+    poster_image: dict[str, str]
+    categories: list[Categories]
+    genres: list[Genres]
 
     field_names: ClassVar[Tuple[str]] = 'id', 'slug', 'synopsis', 'canonicalTitle', 'titles', 'abbreviatedTitles', \
                                         'averageRating', 'mangaType', 'subtype', 'status', 'posterImage', 'categories', \
@@ -139,9 +95,9 @@ class Manga:
             'titles_array': list(self.titles.values()),
             'abbreviatedTitles': self.abbreviated_titles,
             'averageRating': self.average_rating,
-            'mangaType': self.manga_type,
-            'subtype': self.subtype,
-            'status': self.status,
+            'mangaType': self.manga_type.value(),
+            'subtype': self.subtype.value(),
+            'status': self.status.value(),
             'posterImage': self.poster_image,
             'categories': [category.to_dict() for category in self.categories],
             'genres': [genre.to_dict() for genre in self.genres]
@@ -161,9 +117,9 @@ class Manga:
             'titles_array': list(resource.titles.values()),
             'abbreviatedTitles': resource.abbreviatedTitles,
             'averageRating': resource.averageRating,
-            'mangaType': resource.mangaType,
-            'subtype': resource.subtype,
-            'status': resource.status,
+            'mangaType': MangaType[resource.mangaType.upper()],
+            'subtype': MangaType[resource.subtype.upper],
+            'status': MangaStatus[resource.status.upper],
             'posterImage': {size: link for size, link in resource.posterImage.items() if
                             size != 'meta'} if resource.posterImage else None,
             'categories': [Categories.resource_to_dict(category) for category in

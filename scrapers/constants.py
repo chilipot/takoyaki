@@ -2,7 +2,8 @@ import functools
 from enum import Enum
 from urllib.parse import urljoin
 
-
+# replacing this with the AggregatorSource enum in base.py
+# Move the base_urls to the aggregator scraping class itself, no reason for it to be public.
 class Source(Enum):
     MANGADEX = "MANGADEX"
     MANGAKAKALOT = "MANGAKAKALOT"
