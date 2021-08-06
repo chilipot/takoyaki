@@ -7,7 +7,7 @@ from scrapers.models.common import MangaType, MangaStatus
 
 
 @dataclass()
-class Genres:
+class Genre:
     name: str
     slug: str
     description: str
@@ -31,7 +31,7 @@ class Genres:
 
 
 @dataclass()
-class Categories:
+class Category:
     title: str
     description: str
     slug: str
@@ -74,8 +74,8 @@ class Manga:
     subtype: MangaType
     status: MangaStatus
     poster_image: dict[str, str]
-    categories: list[Categories]
-    genres: list[Genres]
+    categories: list[Category]
+    genres: list[Genre]
 
     field_names: ClassVar[Tuple[str]] = 'id', 'slug', 'synopsis', 'canonicalTitle', 'titles', 'abbreviatedTitles', \
                                         'averageRating', 'mangaType', 'subtype', 'status', 'posterImage', 'categories', \
@@ -122,8 +122,8 @@ class Manga:
             'status': MangaStatus[resource.status.upper],
             'posterImage': {size: link for size, link in resource.posterImage.items() if
                             size != 'meta'} if resource.posterImage else None,
-            'categories': [Categories.resource_to_dict(category) for category in
+            'categories': [Category.resource_to_dict(category) for category in
                            resource.categories.resources] if resource.relationships.categories else [],
-            'genres': [Genres.resource_to_dict(genre) for genre in
+            'genres': [Genre.resource_to_dict(genre) for genre in
                        resource.genres.resources] if resource.relationships.genres else []
         }

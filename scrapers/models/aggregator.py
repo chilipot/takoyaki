@@ -40,8 +40,9 @@ class Page:
 
 @dataclass
 class SearchResult:
+    id: int  # IDK the use for this yet but seems important
     source: MangaSource
     title: str
-    posterImage: str
-    lastestChapter: str  # chapter number is weird so just keep that weird format as a string
-    detailsLink: str  # scrape the anchor href
+    poster_image: str
+    latest_chapter: str  # chapter number is weird so just keep that weird format as a string
+    details_link: str  # scrape the anchor href
