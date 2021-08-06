@@ -1,0 +1,2 @@
+class InvalidSourceError(Exception):
+    pass
