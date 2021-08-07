@@ -15,7 +15,7 @@ class ScanlatorScraper(ABC):
         pass
 
     @abstractmethod
-    async def get_manga_chapters(self, source: str, since: date = None) -> List[Chapter]:
+    async def get_manga_chapters(self, link: str) -> List[Chapter]:
         """
         Scrapes chapter data - links, ordering, names, etc.
         Does not open links and scrape page data.

@@ -1,11 +1,14 @@
+import json
+
 import socketio
 from aiohttp import web
 
 from scrapers.content_sources.asurascans import AsuraScansScraper
 from scrapers.content_sources.base import ScanlatorScraper
+from scrapers.models.aggregator import SearchResult
 from scrapers.models.common import MangaSource
-from scrapers.models.kitsu import Manga, MangaShort
-from scrapers.schemas import MangaSchema, MangaShortSchema, SearchResultSchema
+from scrapers.models.kitsu import MangaShort
+from scrapers.schemas import MangaShortSchema, SearchResultSchema, ChapterSchema
 
 sio = socketio.AsyncServer()
 
@@ -20,11 +23,17 @@ async def index(request):
     return web.Response(text="hello world")
 
 
+async def manga_sources(request):
+    available_sources = json.dumps({s.name: s.value for s in MangaSource})
+    return web.Response(text=available_sources, content_type="application/json")
+
+
 content_sources: dict[MangaSource, ScanlatorScraper] = {
     MangaSource.ASURASCANS: AsuraScansScraper()
 }
 
 app.router.add_get('/', index)
+app.router.add_get('/manga-sources', manga_sources)
 
 """
 WebSocket endpoints
@@ -48,6 +57,19 @@ async def pull_manga_results_from_scrapers(sid, data):
     search_results = await scraper.search(selected_manga)
     search_result_schema = SearchResultSchema(many=True)
     await sio.emit('retrieve_manga_results', {'data': search_result_schema.dump(search_results)}, to=sid)
+
+
+@sio.on('retrieve_manga_chapters')
+async def scrape_available_chapters(sid, data):
+    search_result_schema = SearchResultSchema()
+    selected_result: SearchResult = search_result_schema.load(data['selected'])
+    source = selected_result.source
+
+    scraper = content_sources[source]
+    chapters = await scraper.get_manga_chapters(selected_result.details_link)
+    chapter_schema = ChapterSchema(many=True)
+    await sio.emit('retrieve_manga_chapters', {'data': chapter_schema.dump(chapters)}, to=sid)
+
 
 if __name__ == '__main__':
     web.run_app(app)

@@ -1,12 +1,15 @@
-from datetime import date
 from typing import List, Union
 
 import aiohttp
+from bs4 import BeautifulSoup, Tag
 
 from scrapers.content_sources.base import ScanlatorScraper
 from scrapers.models.aggregator import SearchResult, Chapter
 from scrapers.models.common import MangaSource
 from scrapers.models.kitsu import Manga, MangaShort
+
+HEADERS = {
+    'user-agent': ' Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36'}
 
 
 class AsuraScansScraper(ScanlatorScraper):
@@ -24,11 +27,29 @@ class AsuraScansScraper(ScanlatorScraper):
             details_link=raw['post_link']
         )
 
+    @classmethod
+    def _map_chapter(cls, item: Tag) -> Chapter:
+        anchor = item.find('a')
+        return Chapter(
+            name=item.get('data-num'),
+            num=int(item.get('data-num')),
+            rel_link=anchor.get('href'),
+            source=cls.SOURCE,
+        )
+
     async def get_chapter_pages(self, chapter: Chapter) -> List[Chapter]:
         pass
 
-    async def get_manga_chapters(self, source: str, since: date = None) -> List[Chapter]:
-        pass
+    async def get_manga_chapters(self, link: str) -> List[Chapter]:
+        async with aiohttp.ClientSession(headers=HEADERS) as session:
+            async with session.get(link) as resp:
+                soup = BeautifulSoup(await resp.text())
+                if "Bot Verification" in soup.title.string:
+                    return list()
+                print(await resp.text())
+                chapter_list_items = soup.find('div', id="chapterlist").find_all("li")
+                print(f"Found {len(chapter_list_items)} chapters")
+                return [self._map_chapter(i) for i in chapter_list_items]
 
     async def search(self, manga: Union[Manga, MangaShort]) -> list[SearchResult]:
         async with aiohttp.ClientSession() as session:
