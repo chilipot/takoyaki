@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields, post_load
 from marshmallow_enum import EnumField
 
-from scrapers.models.aggregator import SearchResult, Chapter
+from scrapers.models.aggregator import SearchResult, Chapter, Page
 from scrapers.models.common import MangaSource, MangaStatus, MangaType
 from scrapers.models.kitsu import Genre, Category, Manga, MangaShort
 
@@ -80,3 +80,12 @@ class ChapterSchema(Schema):
     @post_load
     def make_chapter(self, data, **kwargs):
         return Chapter(**data)
+
+
+class PageSchema(Schema):
+    link = fields.Str()
+    num = fields.Int()
+
+    @post_load
+    def make_page(self, data, **kwargs):
+        return Page(**data)

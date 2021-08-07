@@ -17,14 +17,12 @@ class Chapter:
             'name': self.name,
             'num': self.num,
             'reLink': self.rel_link,
-            'updatedAt': self.updated_at.isoformat(),
             'source': self.source.name,
         }
 
 
 @dataclass()
 class Page:
-    chapter: Chapter  # backref, not sure if necessary
     link: str = field(compare=False, hash=True)
     num: int
 

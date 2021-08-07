@@ -5,10 +5,10 @@ from aiohttp import web
 
 from scrapers.content_sources.asurascans import AsuraScansScraper
 from scrapers.content_sources.base import ScanlatorScraper
-from scrapers.models.aggregator import SearchResult
+from scrapers.models.aggregator import SearchResult, Chapter
 from scrapers.models.common import MangaSource
 from scrapers.models.kitsu import MangaShort
-from scrapers.schemas import MangaShortSchema, SearchResultSchema, ChapterSchema
+from scrapers.schemas import MangaShortSchema, SearchResultSchema, ChapterSchema, PageSchema
 
 sio = socketio.AsyncServer()
 
@@ -69,6 +69,18 @@ async def scrape_available_chapters(sid, data):
     chapters = await scraper.get_manga_chapters(selected_result.details_link)
     chapter_schema = ChapterSchema(many=True)
     await sio.emit('retrieve_manga_chapters', {'data': chapter_schema.dump(chapters)}, to=sid)
+
+
+@sio.on('retrieve_chapter_pages')
+async def scrape_chapter_pages(sid, data):
+    chapter_schema = ChapterSchema()
+    selected_chapter: Chapter = chapter_schema.load(data['selected'])
+    source = selected_chapter.source
+
+    scraper = content_sources[source]
+    pages = await scraper.get_chapter_pages(selected_chapter)
+    page_schema = PageSchema(many=True)
+    await sio.emit('retrieve_chapter_pages', {'data': page_schema.dump(pages)}, to=sid)
 
 
 if __name__ == '__main__':
