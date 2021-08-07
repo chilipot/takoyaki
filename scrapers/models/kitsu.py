@@ -127,3 +127,10 @@ class Manga:
             'genres': [Genre.resource_to_dict(genre) for genre in
                        resource.genres.resources] if resource.relationships.genres else []
         }
+
+
+@dataclass()
+class MangaShort:
+    id: str
+    slug: str
+    canonical_title: str

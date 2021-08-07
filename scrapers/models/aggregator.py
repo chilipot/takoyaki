@@ -40,7 +40,7 @@ class Page:
 
 @dataclass
 class SearchResult:
-    id: int  # IDK the use for this yet but seems important
+    id: str  # IDK the use for this yet but seems important
     source: MangaSource
     title: str
     poster_image: str

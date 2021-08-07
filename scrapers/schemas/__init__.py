@@ -3,11 +3,11 @@ from marshmallow_enum import EnumField
 
 from scrapers.models.aggregator import SearchResult
 from scrapers.models.common import MangaSource, MangaStatus, MangaType
-from scrapers.models.kitsu import Genre, Category, Manga
+from scrapers.models.kitsu import Genre, Category, Manga, MangaShort
 
 
 class SearchResultSchema(Schema):
-    id = fields.Int()
+    id = fields.Str()
     source = EnumField(MangaSource)
     title = fields.Str()
     poster_image = fields.Str()
@@ -20,9 +20,9 @@ class SearchResultSchema(Schema):
 
 
 class GenreSchema(Schema):
-    name: fields.Str()
-    slug: fields.Str()
-    description: fields.Str()
+    name = fields.Str()
+    slug = fields.Str()
+    description = fields.Str()
 
     @post_load
     def make_genre(self, data, **kwargs):
@@ -30,10 +30,10 @@ class GenreSchema(Schema):
 
 
 class CategorySchema(Schema):
-    title: fields.Str()
-    description: fields.Str()
-    slug: fields.Str()
-    image: fields.Str()
+    title = fields.Str()
+    description = fields.Str()
+    slug = fields.Str()
+    image = fields.Str()
 
     @post_load
     def make_category(self, data, **kwargs):
@@ -42,32 +42,30 @@ class CategorySchema(Schema):
 
 class MangaSchema(Schema):
     id = fields.Str()
-    slug: fields.Str()
-    synopsis: fields.Str()
-    canonical_title: fields.Str()
-    titles: fields.Dict(keys=fields.Str(), values=fields.Str())
-    titles_array: fields.List(fields.Str())
-    abbreviated_titles: fields.List(fields.Str())
-    average_rating: fields.Str()
-    manga_type: EnumField(MangaType)
-    subtype: EnumField(MangaType)
-    status: EnumField(MangaStatus)
-    poster_image: fields.Dict(keys=fields.Str(), values=fields.Str())
-    categories: fields.List(fields.Nested(CategorySchema))
-    genres: fields.List(fields.Nested(GenreSchema))
+    slug = fields.Str()
+    synopsis = fields.Str()
+    canonical_title = fields.Str()
+    titles = fields.Dict(keys=fields.Str(), values=fields.Str())
+    titles_array = fields.List(fields.Str())
+    abbreviated_titles = fields.List(fields.Str())
+    average_rating = fields.Str()
+    manga_type = EnumField(MangaType)
+    subtype = EnumField(MangaType)
+    status = EnumField(MangaStatus)
+    poster_image = fields.Dict(keys=fields.Str(), values=fields.Str())
+    categories = fields.List(fields.Nested(CategorySchema))
+    genres = fields.List(fields.Nested(GenreSchema))
 
     @post_load
     def make_manga(self, data, **kwargs):
         return Manga(**data)
 
 
-_schema_instances = {
-    'SearchResult': SearchResultSchema(),
-    'ManySearchResult': SearchResultSchema(many=True),
-    'Manga': MangaSchema(),
-    'ManyManga': MangaSchema(many=True)
-}
+class MangaShortSchema(Schema):
+    id = fields.Str()
+    slug = fields.Str()
+    canonical_title = fields.Str()
 
-
-def load_data(data, schema_type: str):
-    return _schema_instances[schema_type].load(data)
+    @post_load
+    def make_manga_short(self, data, **kwargs):
+        return MangaShort(**data)

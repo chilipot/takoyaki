@@ -4,8 +4,8 @@ from aiohttp import web
 from scrapers.content_sources.asurascans import AsuraScansScraper
 from scrapers.content_sources.base import ScanlatorScraper
 from scrapers.models.common import MangaSource
-from scrapers.models.kitsu import Manga
-from scrapers.schemas import load_data
+from scrapers.models.kitsu import Manga, MangaShort
+from scrapers.schemas import MangaSchema, MangaShortSchema, SearchResultSchema
 
 sio = socketio.AsyncServer()
 
@@ -40,12 +40,14 @@ async def search_event_handler(sid, data):
 
 @sio.on('retrieve_manga_results')
 async def pull_manga_results_from_scrapers(sid, data):
-    selected_manga: Manga = load_data(data['selected'], 'Manga')
+    manga_short_schema = MangaShortSchema()
+    selected_manga: MangaShort = manga_short_schema.load(data['selected'])
     source: MangaSource = MangaSource[data['source'].upper()]
 
     scraper = content_sources[source]
     search_results = await scraper.search(selected_manga)
-    return {'data': search_results}
+    search_result_schema = SearchResultSchema(many=True)
+    await sio.emit('retrieve_manga_results', {'data': search_result_schema.dump(search_results)}, to=sid)
 
 if __name__ == '__main__':
     web.run_app(app)

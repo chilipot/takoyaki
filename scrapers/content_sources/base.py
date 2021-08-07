@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from datetime import date
-from typing import List
+from typing import List, Union
 
 from scrapers.models.aggregator import SearchResult, Chapter
 from scrapers.models.common import MangaSource
-from scrapers.models.kitsu import Manga
+from scrapers.models.kitsu import Manga, MangaShort
 
 
 class ScanlatorScraper(ABC):
@@ -23,5 +23,5 @@ class ScanlatorScraper(ABC):
         pass
 
     @abstractmethod
-    async def search(self, manga: Manga) -> list[SearchResult]:
+    async def search(self, manga: Union[Manga, MangaShort]) -> list[SearchResult]:
         pass
