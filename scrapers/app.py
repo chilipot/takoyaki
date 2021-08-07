@@ -1,5 +1,3 @@
-import json
-
 import socketio
 from aiohttp import web
 
@@ -16,28 +14,19 @@ app = web.Application()
 
 sio.attach(app)
 
-
-async def index(request):
-    # with open('index.html') as f:
-    #     return web.Response(text=f.read(), content_type='text/html')
-    return web.Response(text="hello world")
-
-
-async def manga_sources(request):
-    available_sources = json.dumps({s.name: s.value for s in MangaSource})
-    return web.Response(text=available_sources, content_type="application/json")
-
-
 content_sources: dict[MangaSource, ScanlatorScraper] = {
     MangaSource.ASURASCANS: AsuraScansScraper()
 }
 
-app.router.add_get('/', index)
-app.router.add_get('/manga-sources', manga_sources)
-
 """
 WebSocket endpoints
 """
+
+
+@sio.on('fetch_manga_sources')
+async def active_manga_sources(sid, data):
+    available_sources = {s.name: s.value for s in MangaSource}
+    await sio.emit('fetch_manga_sources', {'data': available_sources}, sid=sid)
 
 
 @sio.on('search_event')
