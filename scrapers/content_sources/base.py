@@ -1,21 +1,21 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import date
-from typing import Generator, Optional, List
+from typing import List, Union
 
-from scrapers.models.aggregator import SearchResult, Chapter
+from scrapers.models.aggregator import SearchResult, Chapter, Page
 from scrapers.models.common import MangaSource
+from scrapers.models.kitsu import Manga, MangaShort
 
 
-class ScanlatorSource(ABC):
-    SOURCE = MangaSource
+class ScanlatorScraper(ABC):
+    SOURCE: MangaSource = None
 
     @abstractmethod
-    def chapter_image_links(self, chapter: Chapter) -> List[Chapter]:
+    async def get_chapter_pages(self, chapter: Chapter) -> List[Page]:
         pass
 
     @abstractmethod
-    def all_chapters(self, source: str, since: date = None) -> List[Chapter]:
+    async def get_manga_chapters(self, link: str) -> List[Chapter]:
         """
         Scrapes chapter data - links, ordering, names, etc.
         Does not open links and scrape page data.
@@ -23,5 +23,5 @@ class ScanlatorSource(ABC):
         pass
 
     @abstractmethod
-    def search(self, *names) -> list[SearchResult]:
+    async def search(self, manga: Union[Manga, MangaShort]) -> list[SearchResult]:
         pass
